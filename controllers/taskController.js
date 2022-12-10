@@ -37,9 +37,17 @@ const createTask = async (req, res) => {
 
 // delete a task
 const deleteTask = async (req, res) => {
-  const { id, deleteCompleted } = req.params;
+  const { id } = req.params;
 
-  if (deleteCompleted === "false") {
+  if (id === "deleteCompleted") {
+    const task = await Task.deleteMany({ isCompleted: true });
+
+    if (!task) {
+      return res.status(400).json({ error: "No completed tasks" });
+    }
+
+    res.status(200).json(task);
+  } else {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "No such task" });
     }
@@ -48,14 +56,6 @@ const deleteTask = async (req, res) => {
 
     if (!task) {
       return res.status(400).json({ error: "No such task" });
-    }
-
-    res.status(200).json(task);
-  } else {
-    const task = await Task.deleteMany({ isCompleted: true });
-
-    if (!task) {
-      return res.status(400).json({ error: "No completed tasks" });
     }
 
     res.status(200).json(task);
